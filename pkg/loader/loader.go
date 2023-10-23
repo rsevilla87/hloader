@@ -111,8 +111,12 @@ func (l *Loader) sendRequest(httpClient *http.Client, req *http.Request) {
 		return
 	}
 	defer resp.Body.Close()
-	bytesRead, _ := io.ReadAll(resp.Body)
-	result.bytesRead = int64(len(bytesRead))
+	bytesRead, err := io.ReadAll(resp.Body)
+	if err != nil {
+		result.readError = true
+	} else {
+		result.bytesRead = int64(len(bytesRead))
+	}
 	result.code = resp.StatusCode
 	result.latency = time.Since(result.timestamp).Microseconds()
 }

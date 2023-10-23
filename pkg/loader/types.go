@@ -28,12 +28,14 @@ type requestResult struct {
 	timestamp time.Time
 	code      int
 	timeout   bool
+	readError bool
 	bytesRead int64
 }
 
 type testResult struct {
 	RPS           int64         `json:"rps"`
 	Timeouts      int64         `json:"timeouts"`
+	ReadErrors    int64         `json:"readErrors"`
 	AvgLatency    float64       `json:"avgLatency"`
 	AvgThroughput int64         `json:"avgThroughput"`
 	P99Latency    float64       `json:"p99Latency"`

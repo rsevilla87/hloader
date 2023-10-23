@@ -19,6 +19,8 @@ func normaliceResults(results []requestResult, duration time.Duration) error {
 		result.ResponseCodes[r.code]++
 		if r.timeout {
 			result.Timeouts++
+		} else if r.readError {
+			result.ReadErrors++
 		} else { // timeouts are not valid results to be used in latency calculations
 			latencies = append(latencies, float64(r.latency))
 			totalRead += r.bytesRead
