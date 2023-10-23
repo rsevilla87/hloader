@@ -1,4 +1,4 @@
-module github.com/rsevilla87/khttploader
+module github.com/rsevilla87/hloader
 
 go 1.20
 

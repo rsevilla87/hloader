@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/rsevilla87/khttploader/pkg/loader"
+	"github.com/rsevilla87/hloader/pkg/loader"
 	"github.com/spf13/cobra"
 )
 
