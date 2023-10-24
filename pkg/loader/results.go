@@ -13,10 +13,10 @@ func normaliceResults(results []requestResult, duration time.Duration) error {
 	var latencies []float64
 	var totalRead int64
 	result := testResult{
-		ResponseCodes: make(map[int]int64),
+		StatusCodes: make(map[int]int64),
 	}
 	for _, r := range results {
-		result.ResponseCodes[r.code]++
+		result.StatusCodes[r.code]++
 		if r.timeout {
 			result.Timeouts++
 		} else if r.readError {
@@ -26,7 +26,7 @@ func normaliceResults(results []requestResult, duration time.Duration) error {
 			totalRead += r.bytesRead
 		}
 	}
-	result.RPS = float64(result.ResponseCodes[http.StatusOK]) / duration.Seconds()
+	result.RPS = float64(result.StatusCodes[http.StatusOK]) / duration.Seconds()
 	result.AvgThroughput = totalRead / int64(duration.Seconds())
 	result.AvgLatency, _ = stats.Mean(latencies)
 	result.AvgLatency, _ = stats.Round(result.AvgLatency, 2)

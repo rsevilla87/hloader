@@ -43,5 +43,5 @@ type testResult struct {
 	P95Latency    float64       `json:"p95_lat_us"`
 	P90Latency    float64       `json:"p90_lat_us"`
 	LatencyStdev  float64       `json:"stdev_lat"`
-	ResponseCodes map[int]int64 `json:"response_codes"`
+	StatusCodes   map[int]int64 `json:"status_codes"`
 }
