@@ -32,7 +32,7 @@ func main() {
 	var pprof, http2, insecure, keepalive bool
 	rootCmd := &cobra.Command{
 		Use:   fmt.Sprintf(os.Args[0]),
-		Short: "Simple http loader",
+		Short: "HTTP loader",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 			if requestRate > 0 && requestRate < connections {
