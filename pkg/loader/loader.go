@@ -14,7 +14,7 @@ import (
 	"golang.org/x/time/rate"
 )
 
-func NewLoader(duration time.Duration, requestRate, connections int, url string, requestTimeout time.Duration, insecureSkipVerify bool, keepalive bool, http2 bool) Loader {
+func NewLoader(duration, requestTimeout time.Duration, requestRate, connections int, url string, insecure, keepalive, http2 bool) Loader {
 	var limit rate.Limit
 	if requestRate > 0 {
 		limit = rate.Limit(requestRate + 1) // We add 1 to count the main goroutine
@@ -24,7 +24,7 @@ func NewLoader(duration time.Duration, requestRate, connections int, url string,
 		requestRate:        requestRate,
 		duration:           duration,
 		connections:        connections,
-		insecureSkipVerify: insecureSkipVerify,
+		insecureSkipVerify: insecure,
 		requestTimeout:     requestTimeout,
 		keepalive:          keepalive,
 		limiter:            rate.NewLimiter(limit, 1),
@@ -71,7 +71,7 @@ func (l *Loader) load(wg *sync.WaitGroup, stopCh chan struct{}) {
 			TLSClientConfig: &tls.Config{
 				InsecureSkipVerify: l.insecureSkipVerify,
 			},
-			DisableKeepAlives: !l.keepalive, //false by default
+			DisableKeepAlives: !l.keepalive, // false by default
 			ForceAttemptHTTP2: l.http2,
 		},
 	}
@@ -81,7 +81,6 @@ func (l *Loader) load(wg *sync.WaitGroup, stopCh chan struct{}) {
 		os.Exit(1)
 	}
 	for {
-		l.limiter.Wait(context.TODO())
 		select {
 		case <-stopCh:
 			httpClient.CloseIdleConnections()
@@ -100,6 +99,7 @@ func (l *Loader) sendRequest(httpClient *http.Client, req *http.Request) {
 		l.Unlock()
 	}()
 	result.timestamp = time.Now()
+	l.limiter.Wait(context.TODO())
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		if os.IsTimeout(err) {
