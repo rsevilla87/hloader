@@ -15,7 +15,7 @@ import (
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "😎 Print the version number of ingress-perf",
+	Short: "Get version info",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Version:", version.Version)
 		fmt.Println("Git Commit:", version.GitCommit)
@@ -52,10 +52,11 @@ func main() {
 	rootCmd.Flags().IntVarP(&connections, "concurrency", "c", 1, "Number of concurrent connections")
 	rootCmd.Flags().DurationVarP(&duration, "duration", "d", 10*time.Second, "Test duration")
 	rootCmd.Flags().DurationVarP(&requestTimeout, "timeout", "t", 1*time.Second, "Request timeout")
-	rootCmd.Flags().BoolVarP(&keepalive, "keepalive", "k", true, "Enable HTTP keepalive")
-	rootCmd.Flags().BoolVar(&http2, "http2", true, "Enable HTTP2")
-	rootCmd.Flags().BoolVar(&pprof, "pprof", false, "Enable pprof endpoint in localhost:6060")
 	rootCmd.Flags().BoolVarP(&insecure, "insecure", "i", true, "Skip server's certificate verification")
+	rootCmd.Flags().BoolVarP(&keepalive, "keepalive", "k", true, "Enable HTTP keepalive")
+	rootCmd.Flags().BoolVar(&http2, "http2", true, "Use HTTP2 protocol, if possible")
+	rootCmd.Flags().BoolVar(&pprof, "pprof", false, "Enable pprof endpoint in localhost:6060")
+	rootCmd.Flags().SortFlags = false
 	rootCmd.MarkFlagRequired("url")
 	rootCmd.AddCommand(versionCmd)
 	if err := rootCmd.Execute(); err != nil {
