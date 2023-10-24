@@ -18,10 +18,10 @@ func main() {
 	var url string
 	var pprof, http2, insecureSkipVerify, keepalive bool
 	rootCmd := &cobra.Command{
-		Use:          fmt.Sprintf(os.Args[0]),
-		Short:        "Simple http loader",
-		SilenceUsage: true,
+		Use:   fmt.Sprintf(os.Args[0]),
+		Short: "Simple http loader",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cmd.SilenceUsage = true
 			if requestRate > 0 && requestRate < connections {
 				return fmt.Errorf("request rate must be higher than connections")
 			}
@@ -45,7 +45,6 @@ func main() {
 	rootCmd.Flags().BoolVarP(&insecureSkipVerify, "insecureSkipVerify", "i", true, "Skip server's certificate verification")
 	rootCmd.MarkFlagRequired("url")
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
 		os.Exit(1)
 	}
 }

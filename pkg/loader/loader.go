@@ -46,7 +46,7 @@ out:
 	for {
 		select {
 		case <-signalCh:
-			fmt.Println("Interrupt signal received, exiting gracefully")
+			os.Stderr.Write([]byte("Interrupt signal received, exiting gracefully"))
 			break out
 		case <-time.After(l.duration):
 			break out

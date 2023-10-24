@@ -33,16 +33,15 @@ type requestResult struct {
 }
 
 type testResult struct {
-	RPS           int64         `json:"rps"`
+	RPS           float64       `json:"rps"`
 	Timeouts      int64         `json:"timeouts"`
-	ReadErrors    int64         `json:"readErrors"`
-	AvgLatency    float64       `json:"avgLatency"`
-	AvgThroughput int64         `json:"avgThroughput"`
-	P99Latency    float64       `json:"p99Latency"`
-	P95Latency    float64       `json:"p95Latency"`
-	P90Latency    float64       `json:"p90Latency"`
-	P50Latency    float64       `json:"p50Latency"`
-	LatencyStdev  float64       `json:"latencyStdev"`
-	MaxLatency    float64       `json:"maxLatency"`
-	ResponseCodes map[int]int64 `json:"responseCodes"`
+	ReadErrors    int64         `json:"read_errors"`
+	AvgThroughput int64         `json:"avg_throughput_bps"`
+	AvgLatency    float64       `json:"avg_lat_us"`
+	MaxLatency    float64       `json:"max_lat_us"`
+	P99Latency    float64       `json:"p99_lat_us"`
+	P95Latency    float64       `json:"p95_lat_us"`
+	P90Latency    float64       `json:"p90_lat_us"`
+	LatencyStdev  float64       `json:"stdev_lat"`
+	ResponseCodes map[int]int64 `json:"response_codes"`
 }
