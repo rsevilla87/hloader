@@ -1,5 +1,7 @@
 # hloader
 
+[![Go-build](https://github.com/rsevilla87/hloader/actions/workflows/go-build.yml/badge.svg?branch=main&event=push)](https://github.com/rsevilla87/hloader/actions/workflows/go-build.yml)
+
 ```shell
  $ ./bin/hloader -h
 HTTP loader
