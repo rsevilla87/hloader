@@ -3,6 +3,7 @@ package loader
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 	"time"
 
@@ -26,7 +27,7 @@ func normaliceResults(results []requestResult, duration time.Duration) error {
 			totalRead += r.bytesRead
 		}
 	}
-	result.RPS = float64(result.StatusCodes[http.StatusOK]) / duration.Seconds()
+	result.RPS = math.Floor(float64(result.StatusCodes[http.StatusOK])/duration.Seconds()*100) / 100
 	result.AvgThroughput = totalRead / int64(duration.Seconds())
 	result.AvgLatency, _ = stats.Mean(latencies)
 	result.AvgLatency, _ = stats.Round(result.AvgLatency, 2)
