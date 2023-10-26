@@ -46,7 +46,7 @@ out:
 	for {
 		select {
 		case <-signalCh:
-			os.Stderr.Write([]byte("Interrupt signal received, exiting gracefully"))
+			os.Stderr.Write([]byte("Interrupt signal received, exiting gracefully\n"))
 			break out
 		case <-time.After(l.duration):
 			break out
@@ -98,8 +98,8 @@ func (l *Loader) sendRequest(httpClient *http.Client, req *http.Request) {
 		l.results = append(l.results, result)
 		l.Unlock()
 	}()
-	result.timestamp = time.Now()
 	l.limiter.Wait(context.TODO())
+	result.timestamp = time.Now()
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		if os.IsTimeout(err) {
@@ -112,11 +112,11 @@ func (l *Loader) sendRequest(httpClient *http.Client, req *http.Request) {
 	}
 	defer resp.Body.Close()
 	bytesRead, err := io.ReadAll(resp.Body)
+	result.latency = time.Since(result.timestamp).Microseconds()
 	if err != nil {
 		result.readError = true
 	} else {
 		result.bytesRead = int64(len(bytesRead))
 	}
 	result.code = resp.StatusCode
-	result.latency = time.Since(result.timestamp).Microseconds()
 }
