@@ -30,6 +30,7 @@ func main() {
 	var requestRate, connections int
 	var url string
 	var pprof, http2, insecure, keepalive bool
+	var csv string
 	rootCmd := &cobra.Command{
 		Use:   fmt.Sprintf(os.Args[0]),
 		Short: "HTTP loader",
@@ -43,7 +44,7 @@ func main() {
 					log.Println(http.ListenAndServe("localhost:6060", nil))
 				}()
 			}
-			l := loader.NewLoader(duration, requestTimeout, requestRate, connections, url, insecure, keepalive, http2)
+			l := loader.NewLoader(duration, requestTimeout, requestRate, connections, url, insecure, keepalive, http2, csv)
 			return l.Run()
 		},
 	}
@@ -56,6 +57,7 @@ func main() {
 	rootCmd.Flags().BoolVarP(&keepalive, "keepalive", "k", true, "Enable HTTP keepalive")
 	rootCmd.Flags().BoolVar(&http2, "http2", true, "Use HTTP2 protocol, if possible")
 	rootCmd.Flags().BoolVar(&pprof, "pprof", false, "Enable pprof endpoint in localhost:6060")
+	rootCmd.Flags().StringVarP(&csv, "output", "o", "", "Dump request outputs in the given CSV file")
 	rootCmd.Flags().SortFlags = false
 	rootCmd.MarkFlagRequired("url")
 	rootCmd.AddCommand(versionCmd)

@@ -14,7 +14,7 @@ import (
 	"golang.org/x/time/rate"
 )
 
-func NewLoader(duration, requestTimeout time.Duration, requestRate, connections int, url string, insecure, keepalive, http2 bool) Loader {
+func NewLoader(duration, requestTimeout time.Duration, requestRate, connections int, url string, insecure, keepalive, http2 bool, csv string) Loader {
 	var limit rate.Limit
 	if requestRate > 0 {
 		limit = rate.Limit(requestRate + 1) // We add 1 to count the main goroutine
@@ -29,6 +29,7 @@ func NewLoader(duration, requestTimeout time.Duration, requestRate, connections 
 		keepalive:          keepalive,
 		limiter:            rate.NewLimiter(limit, 1),
 		http2:              http2,
+		csv:                csv,
 	}
 }
 
@@ -55,7 +56,7 @@ out:
 	close(stopCh)
 	wg.Wait()
 	l.duration = time.Since(now)
-	err := normaliceResults(l.results, l.duration)
+	err := normaliceResults(l.results, l.duration, l.csv)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

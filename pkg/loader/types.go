@@ -20,6 +20,7 @@ type Loader struct {
 	results            []requestResult
 	limiter            *rate.Limiter
 	http2              bool
+	csv                string
 	sync.Mutex
 }
 
