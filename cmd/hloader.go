@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -32,12 +33,12 @@ func main() {
 	var pprof, http2, insecure, keepalive bool
 	var csv string
 	rootCmd := &cobra.Command{
-		Use:   fmt.Sprintf(os.Args[0]),
+		Use:   os.Args[0],
 		Short: "HTTP loader",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 			if requestRate > 0 && requestRate < connections {
-				return fmt.Errorf("request rate must be higher than connections")
+				return errors.New("request rate must be higher than connections")
 			}
 			if pprof {
 				go func() {

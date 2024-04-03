@@ -22,3 +22,5 @@ linters:
     - perfsprint
     - bodyclose
     - prealloc
+    - revive
+    - perfsprint
