@@ -38,9 +38,27 @@ func (l *Loader) Run() error {
 	signalCh := make(chan os.Signal, 1)
 	stopCh := make(chan struct{})
 	now := time.Now()
+	httpClient := &http.Client{
+		Timeout: l.requestTimeout,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: l.insecureSkipVerify,
+			},
+			DisableKeepAlives:   !l.keepalive,
+			ForceAttemptHTTP2:   l.http2,
+			MaxIdleConns:        l.connections,
+			MaxConnsPerHost:     l.connections,
+			MaxIdleConnsPerHost: l.connections,
+		},
+	}
 	for i := 0; i < l.connections; i++ {
 		wg.Add(1)
-		go l.load(&wg, stopCh)
+		req, err := http.NewRequest(http.MethodGet, l.url, http.NoBody)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		go l.load(&wg, httpClient, req, stopCh)
 	}
 	signal.Notify(signalCh, os.Interrupt)
 out:
@@ -64,23 +82,8 @@ out:
 	return nil
 }
 
-func (l *Loader) load(wg *sync.WaitGroup, stopCh chan struct{}) {
+func (l *Loader) load(wg *sync.WaitGroup, httpClient *http.Client, req *http.Request, stopCh chan struct{}) {
 	defer wg.Done()
-	httpClient := &http.Client{
-		Timeout: l.requestTimeout,
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: l.insecureSkipVerify,
-			},
-			DisableKeepAlives: !l.keepalive, // false by default
-			ForceAttemptHTTP2: l.http2,
-		},
-	}
-	req, err := http.NewRequest(http.MethodGet, l.url, http.NoBody)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
 	for {
 		select {
 		case <-stopCh:
