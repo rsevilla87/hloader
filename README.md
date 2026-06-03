@@ -2,6 +2,18 @@
 
 [![Go-build](https://github.com/rsevilla87/hloader/actions/workflows/go-build.yml/badge.svg?branch=main&event=push)](https://github.com/rsevilla87/hloader/actions/workflows/go-build.yml)
 
+hloader is a lightweight HTTP/HTTPS load testing tool designed for generating concurrent HTTP requests with configurable rate limiting and connection management.
+
+## Scope and Limitations
+
+hloader is specifically designed for **HTTP/HTTPS load testing only**. It supports:
+- HTTP/1.1 and HTTP/2 protocols
+- Configurable request rates and concurrency
+- TLS/SSL connections with optional certificate verification
+- HTTP keepalive connections
+
+**Out of Scope**: hloader does not support other transport protocols such as TCP, UDP, or SCTP. For protocol-level load testing including SCTP support for telco use-cases, please refer to [k8s-netperf](https://github.com/cloud-bulldozer/k8s-netperf).
+
 ```shell
  $ ./bin/hloader -h
 HTTP loader
