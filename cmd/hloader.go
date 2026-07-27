@@ -28,15 +28,18 @@ var versionCmd = &cobra.Command{
 
 func main() {
 	var duration, requestTimeout time.Duration
-	var requestRate, connections int
+	var requestRate, connections, port int
 	var url string
-	var pprof, http2, insecure, keepalive bool
+	var pprof, http2, insecure, keepalive, metrics bool
 	var csv string
 	rootCmd := &cobra.Command{
 		Use:   os.Args[0],
 		Short: "HTTP loader",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
+			if metrics {
+				duration = 0
+			}
 			if requestRate > 0 && requestRate < connections {
 				return errors.New("request rate must be higher than connections")
 			}
@@ -45,7 +48,7 @@ func main() {
 					log.Println(http.ListenAndServe("localhost:6060", nil))
 				}()
 			}
-			l := loader.NewLoader(duration, requestTimeout, requestRate, connections, url, insecure, keepalive, http2, csv)
+			l := loader.NewLoader(duration, requestTimeout, requestRate, connections, url, insecure, keepalive, http2, csv, metrics, port)
 			return l.Run()
 		},
 	}
@@ -59,6 +62,8 @@ func main() {
 	rootCmd.Flags().BoolVar(&http2, "http2", true, "Use HTTP2 protocol, if possible")
 	rootCmd.Flags().BoolVar(&pprof, "pprof", false, "Enable pprof endpoint in localhost:6060")
 	rootCmd.Flags().StringVarP(&csv, "output", "o", "", "Dump request outputs in the given CSV file")
+	rootCmd.Flags().BoolVarP(&metrics, "enable-prometheus-metrics", "m", false, "Enable Prometheus metrics; run until interrupted (ignores --duration)")
+	rootCmd.Flags().IntVarP(&port, "metrics-port", "p", 9000, "Metrics port")
 	rootCmd.Flags().SortFlags = false
 	rootCmd.MarkFlagRequired("url")
 	rootCmd.AddCommand(versionCmd)

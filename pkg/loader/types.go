@@ -21,6 +21,8 @@ type Loader struct {
 	limiter            *rate.Limiter
 	http2              bool
 	csv                string
+	metrics            bool
+	port               int
 	sync.Mutex
 }
 
