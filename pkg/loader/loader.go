@@ -14,7 +14,7 @@ import (
 	"golang.org/x/time/rate"
 )
 
-func NewLoader(duration, requestTimeout time.Duration, requestRate, connections int, url string, insecure, keepalive, http2 bool, csv string) Loader {
+func NewLoader(duration, requestTimeout time.Duration, requestRate, connections int, url string, insecure, keepalive, http2 bool, csv string, metrics bool, port int) Loader {
 	var limit rate.Limit
 	if requestRate > 0 {
 		limit = rate.Limit(requestRate + 1) // We add 1 to count the main goroutine
@@ -30,6 +30,8 @@ func NewLoader(duration, requestTimeout time.Duration, requestRate, connections 
 		limiter:            rate.NewLimiter(limit, 1),
 		http2:              http2,
 		csv:                csv,
+		metrics:            metrics,
+		port:               port,
 	}
 }
 
@@ -38,6 +40,9 @@ func (l *Loader) Run() error {
 	signalCh := make(chan os.Signal, 1)
 	stopCh := make(chan struct{})
 	now := time.Now()
+	if l.metrics {
+		startMetricsServer(l.port)
+	}
 	httpClient := &http.Client{
 		Timeout: l.requestTimeout,
 		Transport: &http.Transport{
@@ -52,13 +57,18 @@ func (l *Loader) Run() error {
 		},
 	}
 	for i := 0; i < l.connections; i++ {
-		wg.Add(1)
 		req, err := http.NewRequest(http.MethodGet, l.url, http.NoBody)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		go l.load(&wg, httpClient, req, stopCh)
+		wg.Go(func() {
+			l.load(httpClient, req, stopCh)
+		})
+	}
+	durationCh := time.After(l.duration)
+	if l.duration > 0 {
+		durationCh = nil
 	}
 	signal.Notify(signalCh, os.Interrupt)
 out:
@@ -67,12 +77,16 @@ out:
 		case <-signalCh:
 			os.Stderr.Write([]byte("Interrupt signal received, exiting gracefully\n"))
 			break out
-		case <-time.After(l.duration):
+		case <-durationCh:
 			break out
 		}
 	}
 	close(stopCh)
 	wg.Wait()
+	// If metrics are enabled, we don't need to normalize the results as no output will be generated
+	if l.metrics {
+		return nil
+	}
 	l.duration = time.Since(now)
 	err := normaliceResults(l.results, l.duration, l.csv)
 	if err != nil {
@@ -82,8 +96,7 @@ out:
 	return nil
 }
 
-func (l *Loader) load(wg *sync.WaitGroup, httpClient *http.Client, req *http.Request, stopCh chan struct{}) {
-	defer wg.Done()
+func (l *Loader) load(httpClient *http.Client, req *http.Request, stopCh chan struct{}) {
 	for {
 		select {
 		case <-stopCh:
@@ -97,10 +110,15 @@ func (l *Loader) load(wg *sync.WaitGroup, httpClient *http.Client, req *http.Req
 
 func (l *Loader) sendRequest(httpClient *http.Client, req *http.Request) {
 	result := requestResult{}
-	defer func() { // Ensure to add the result
-		l.Lock()
-		l.results = append(l.results, result)
-		l.Unlock()
+	defer func() {
+		if l.metrics {
+			result.observeMetrics()
+			return
+		} else {
+			l.Lock()
+			l.results = append(l.results, result)
+			l.Unlock()
+		}
 	}()
 	l.limiter.Wait(context.TODO())
 	result.timestamp = time.Now()
