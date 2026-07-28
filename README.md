@@ -73,7 +73,7 @@ Like for example:
 
 ## Prometheus metrics
 
-When `--enable-prometheus-metrics` (`-m`) is set, hloader runs until interrupted (`--duration` is ignored) and exposes a Prometheus scrape endpoint at `http://:<metrics-port>/metrics` (default port `9000`). Results are streamed as metrics instead of being aggregated into the JSON summary or CSV output. Stop the load with `SIGINT` (Ctrl+C).
+When `--enable-prometheus-metrics` (`-m`) is set, hloader runs until interrupted (`--duration` is ignored) and exposes a Prometheus scrape endpoint at `http://localhost:<metrics-port>/metrics` (default port `9000`). Results are streamed as metrics instead of being aggregated into the JSON summary or CSV output. Stop the load with `SIGINT` (Ctrl+C).
 
 Example:
 

@@ -52,7 +52,7 @@ func startMetricsServer(port int) {
 	log.Printf("Prometheus metrics listening on %s/metrics\n", addr)
 	go func() {
 		if err := http.ListenAndServe(addr, nil); err != nil {
-			log.Printf("metrics server error: %v\n", err)
+			log.Fatalf("metrics server error: %v", err)
 		}
 	}()
 }

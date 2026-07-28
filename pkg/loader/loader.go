@@ -66,9 +66,9 @@ func (l *Loader) Run() error {
 			l.load(httpClient, req, stopCh)
 		})
 	}
-	var durationCh <-chan time.Time
+	durationCh := time.After(l.duration)
 	if l.duration > 0 {
-		durationCh = time.After(l.duration)
+		durationCh = nil
 	}
 	signal.Notify(signalCh, os.Interrupt)
 out:
