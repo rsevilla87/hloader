@@ -44,12 +44,14 @@ var (
 )
 
 func startMetricsServer(port int) {
-	mux := http.NewServeMux()
-	mux.Handle("/metrics", promhttp.Handler())
+	http.Handle("/metrics", promhttp.Handler())
+	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("ok"))
+	})
 	addr := fmt.Sprintf(":%d", port)
 	log.Printf("Prometheus metrics listening on %s/metrics\n", addr)
 	go func() {
-		if err := http.ListenAndServe(addr, mux); err != nil {
+		if err := http.ListenAndServe(addr, nil); err != nil {
 			log.Printf("metrics server error: %v\n", err)
 		}
 	}()
