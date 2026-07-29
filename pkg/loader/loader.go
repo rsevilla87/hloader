@@ -67,7 +67,7 @@ func (l *Loader) Run() error {
 		})
 	}
 	durationCh := time.After(l.duration)
-	if l.duration > 0 {
+	if l.metrics {
 		durationCh = nil
 	}
 	signal.Notify(signalCh, os.Interrupt)
