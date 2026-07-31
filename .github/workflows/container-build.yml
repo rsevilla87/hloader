@@ -1,0 +1,47 @@
+name: Container build and push
+
+on:
+  push:
+    branches: [main]
+    tags: ["*"]
+
+env:
+  REGISTRY: ghcr.io/rsevilla87/hloader
+  GO_VER: "1.25"
+
+jobs:
+  container-build-push:
+    name: Build and push container image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: ${{ env.GO_VER }}
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build container image
+        run: make container-build
+        env:
+          CONTAINER_ENGINE: docker
+          REGISTRY: ${{ env.REGISTRY }}
+
+      - name: Push container image
+        run: make container-push
+        env:
+          CONTAINER_ENGINE: docker
+          REGISTRY: ${{ env.REGISTRY }}

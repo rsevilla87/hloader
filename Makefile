@@ -15,9 +15,19 @@ BIN_PATH = $(BIN_DIR)/$(BIN_NAME)
 SOURCES = $(shell find . -type f -name "*.go")
 CGO = 0
 
-.PHONY: build lint clean
+REGISTRY ?= ghcr.io/rsevilla87/hloader
+IMAGE_TAG ?= $(VERSION)
+CONTAINER_ENGINE ?= podman
+
+.PHONY: build lint clean container-build container-push
 
 all: lint build container-build
+
+container-build: build
+	$(CONTAINER_ENGINE) build -t $(REGISTRY):$(IMAGE_TAG) .
+
+container-push:
+	$(CONTAINER_ENGINE) push $(REGISTRY):$(IMAGE_TAG)
 
 build: $(BIN_PATH)
 
