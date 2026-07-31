@@ -24,7 +24,7 @@ CONTAINER_ENGINE ?= podman
 all: lint build container-build
 
 container-build: build
-	$(CONTAINER_ENGINE) build -t $(REGISTRY):$(IMAGE_TAG) .
+	$(CONTAINER_ENGINE) build -f Containerfile -t $(REGISTRY):$(IMAGE_TAG) .
 
 container-push:
 	$(CONTAINER_ENGINE) push $(REGISTRY):$(IMAGE_TAG)
